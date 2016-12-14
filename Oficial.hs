@@ -121,7 +121,7 @@ menuProfessor = do
 menuIntermediarioProfessor:: Int -> IO()
 menuIntermediarioProfessor 1 = adicionarProfessor
 menuIntermediarioProfessor 2 = removerProfessor
-menuIntermediarioProfessor 3 = alterarProfessor
+menuIntermediarioProfessor 3 = menuAlterarProfessor
 menuIntermediarioProfessor 4 = listarProfessores
 menuIntermediarioProfessor 5 = menuPrincipal
 menuIntermediarioProfessor _ = do
@@ -171,21 +171,64 @@ removerProfessor = catchIOError (do
                |True = ioError e                          
 
 --funcao para alterar um professor cadastrado
-alterarProfessor :: IO()
-alterarProfessor = do
-                        putStrLn "Digite o CPF do professor"
-                        cpf <- getLine
-                        putStrLn "Altere o nome do professor(se não quiser digite o nome antigo)"
+menuAlterarProfessor:: IO ()
+menuAlterarProfessor = do
+                  putStrLn "Digite o CPF do professor"
+                  cpf <- getLine
+                  array <- lerProfessores
+                  let usuario = buscar (formarProfessor' "a" cpf) array
+                  putStrLn ("\t CPF 'cpf' \t1 - Alterar Nome\n\t2 - Alterar salario\n\t3 - Alterar disciplinas\n\t4 - Voltar ao Menu Professor")
+                  str <- getLine
+                  opcao <- (readIO str)
+                  menuExtraAlterarProfessor opcao cpf
+
+menuExtraAlterarProfessor:: Int -> String -> IO()
+menuExtraAlterarProfessor 1 cpf = alterarNomeProf cpf
+menuExtraAlterarProfessor 2 cpf = alterarSalarioProf cpf
+menuExtraAlterarProfessor 3 cpf = alterarDisciplinasProf cpf
+menuExtraAlterarProfessor 4 cpf = menuProfessor
+menuExtraAlterarProfessor _ _= do
+                        putStr "opcao invalida"
+                        menuAlterarProfessor
+
+
+alterarNomeProf:: String -> IO()
+alterarNomeProf cpf = do
+                        putStrLn "Altere o nome do professor"
                         nome <- getLine
-                        putStrLn "Altere o salario do professor(se não quiser digite o salario antigo)"
+                        array <- lerProfessores
+                        let usuario = buscar (formarProfessor' "a" cpf) array
+                        let x = ((\(Professor _ info1 info2 info3 info4) info  -> (Professor info info1 info2 info3 info4)) usuario nome)
+                        let listavelha = (remover (formarProfessor' "a" cpf) array) 
+                        let listanova = (inserir x listavelha)
+                        salvarProfessores listanova 
+                        putStrLn "Operação realizada com sucesso. Digite algo para prosseguir."
+                        getLine
+                        menuProfessor
+
+alterarSalarioProf:: String -> IO()
+alterarSalarioProf cpf = do
+                        putStrLn "Altere o salario do professor"
                         str <- getLine
-                        salario <- (readIO str) 
-                        putStrLn "Altere as disciplinas que ele leciona separadas por virgula(se não quiser digite as disciplinas antigas)"
+                        salario <- (readIO str)
+                        array <- lerProfessores
+                        let usuario = buscar (formarProfessor' "a" cpf) array
+                        let x = ((\(Professor info info1 _ info3 info4) info2  -> (Professor info info1 info2 info3 info4)) usuario salario)
+                        let listavelha = (remover (formarProfessor' "a" cpf) array) 
+                        let listanova = (inserir x listavelha)
+                        salvarProfessores listanova 
+                        putStrLn "Operação realizada com sucesso. Digite algo para prosseguir."
+                        getLine
+                        menuProfessor
+
+alterarDisciplinasProf:: String -> IO()
+alterarDisciplinasProf cpf = do
+                        putStrLn "Altere as disciplinas que ele leciona separadas por virgula"
                         disciplinas <- getLine
                         let lista = formarArray disciplinas
                         array <- lerProfessores
                         let usuario = buscar (formarProfessor' "a" cpf) array
-                        let x = ((\(Professor _ info1 _ info3 _ ) info info2 info4 -> (Professor info info1 info2 info3 info4)) usuario nome salario lista)
+                        let x = ((\(Professor info info1 info2 info3 _ ) info4  -> (Professor info info1 info2 info3 info4)) usuario lista)
                         let listavelha = (remover (formarProfessor' "a" cpf) array) 
                         let listanova = (inserir x listavelha)
                         salvarProfessores listanova 
@@ -231,7 +274,7 @@ menuAluno = do
 menuIntermediarioAluno:: Int -> IO()
 menuIntermediarioAluno 1 = adicionarAluno
 menuIntermediarioAluno 2 = removerAluno
-menuIntermediarioAluno 3 = alterarAluno
+menuIntermediarioAluno 3 = menuAlterarAluno
 menuIntermediarioAluno 4 = listarAlunos
 menuIntermediarioAluno 5 = menuPrincipal
 menuIntermediarioAluno _ = do
@@ -278,19 +321,47 @@ removerAluno = catchIOError (do
                |True = ioError e                             
 
 
---funcao para alterar um aluno cadastrado
-alterarAluno :: IO()
-alterarAluno = do
-                        putStrLn "Digite o CPF do Aluno"
-                        cpf <- getLine
-                        putStrLn "Altere o nome do Aluno(se não quiser digite o nome antigo)"
+menuAlterarAluno:: IO ()
+menuAlterarAluno = do
+                  putStrLn "Digite o CPF do Aluno"
+                  cpf <- getLine
+                  array <- lerAlunos
+                  let usuario = buscar (formarAluno' "a" cpf) array
+                  putStrLn ("\t1 - Alterar Nome\n\t2 - Alterar disciplinas\n\t3 - Voltar ao Menu Aluno")
+                  str <- getLine
+                  opcao <- (readIO str)
+                  menuExtraAlterarAluno opcao cpf
+
+menuExtraAlterarAluno:: Int -> String -> IO()
+menuExtraAlterarAluno 1 cpf = alterarNomeAluno cpf
+menuExtraAlterarAluno 2 cpf = alterarDisciplinasAluno cpf
+menuExtraAlterarAluno 3 cpf = menuAluno
+menuExtraAlterarAluno _ _= do
+                        putStr "opcao invalida"
+                        menuAlterarAluno
+
+alterarNomeAluno:: String -> IO()
+alterarNomeAluno cpf = do
+                        putStrLn "Altere o nome do Aluno"
                         nome <- getLine
-                        putStrLn "Altere as disciplinas que ele leciona separadas por virgula(se não quiser digite as disciplinas antigas)"
+                        array <- lerAlunos
+                        let usuario = buscar (formarAluno' "a" cpf) array
+                        let x = ((\(Aluno _ info1 info2 info3 ) info  -> (Aluno info info1 info2 info3 )) usuario nome)
+                        let listavelha = (remover (formarAluno' "a" cpf) array) 
+                        let listanova = (inserir x listavelha)
+                        salvarAlunos listanova 
+                        putStrLn "Operação realizada com sucesso. Digite algo para prosseguir."
+                        getLine
+                        menuAluno
+
+alterarDisciplinasAluno:: String -> IO()
+alterarDisciplinasAluno cpf = do
+                        putStrLn "Altere as disciplinas que ele esta pagando separadas por virgula"
                         disciplinas <- getLine
                         let lista = formarArray disciplinas
                         array <- lerAlunos
                         let usuario = buscar (formarAluno' "a" cpf) array
-                        let x = ((\(Aluno _ info1 _ info3 _ ) info info2 info4 -> (Aluno info info1 info2 info3 info4)) usuario nome lista)
+                        let x = ((\(Aluno info info1 info2 _ ) info3  -> (Aluno info info1 info2 info3)) usuario lista)
                         let listavelha = (remover (formarAluno' "a" cpf) array) 
                         let listanova = (inserir x listavelha)
                         salvarAlunos listanova 
