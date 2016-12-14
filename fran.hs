@@ -83,14 +83,14 @@ formarArrayAux (h:t) a = if (h==',') then
 formarArray s = formarArrayAux s []
 
 --formar um aluno(encapsulamento)
-formarAluno nome cpf = Aluno nome cpf [] []
+formarAluno nome cpf = Aluno nome cpf "" []
 
 
 --formar um professor(encapsulamento)
 formarProfessor nome cpf salario date disciplinas = Professor nome cpf salario date disciplinas
 
 --alternativa para formar um professor
-formarProfessor' nome cpf = Professor nome cpf [] []
+formarProfessor' nome cpf = Professor nome cpf "" []
 
 --menu principal
 menuPrincipal:: IO ()
