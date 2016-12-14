@@ -90,7 +90,7 @@ formarAluno nome cpf = Aluno nome cpf "" []
 formarProfessor nome cpf salario date disciplinas = Professor nome cpf salario date disciplinas
 
 --alternativa para formar um professor
-formarProfessor' nome cpf = Professor nome cpf "" []
+formarProfessor' nome cpf = Professor nome cpf 0 "" []
 
 --menu principal
 menuPrincipal:: IO ()
@@ -122,7 +122,7 @@ menuIntermediarioProfessor:: Int -> IO()
 menuIntermediarioProfessor 1 = adicionarProfessor
 menuIntermediarioProfessor 2 = removerProfessor
 menuIntermediarioProfessor 3 = alterarProfessor
-menuIntermediarioProfessor 4 = buscarProfessor
+{-menuIntermediarioProfessor 4 = buscarProfessor-}
 menuIntermediarioProfessor 5 = menuPrincipal
 menuIntermediarioProfessor _ = do
                         putStr "opcao invalida"
@@ -198,10 +198,10 @@ menuAluno = do
 
 --menu intermediario do aluno
 menuIntermediarioAluno:: Int -> IO()
-menuIntermediarioAluno 1 = adicionarAluno
-menuIntermediarioAluno 2 = removerAluno
+{-menuIntermediarioAluno 1 = adicionarAluno
+menuIntermediarioAluno 2 = removerAluno-}
 menuIntermediarioAluno 3 = alterarAluno
-menuIntermediarioAluno 4 = buscarAluno
+-- menuIntermediarioAluno 4 = buscarAluno
 menuIntermediarioAluno 5 = menuPrincipal
 menuIntermediarioAluno _ = do
                         putStr "opcao invalida"
