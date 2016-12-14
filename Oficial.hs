@@ -112,7 +112,7 @@ menuIntermediario _ = do
 -- menu do professor
 menuProfessor:: IO ()
 menuProfessor = do
-                  putStrLn ("\n\t---MENU PROFESSOR---\n\n\t1 - Adicionar\n\t2 - Remover\n\t3 - Alterar\n\t4 - Buscar\n\t5 - Voltar ao Menu Principal")
+                  putStrLn ("\n\t---MENU PROFESSOR---\n\n\t1 - Adicionar\n\t2 - Remover\n\t3 - Alterar\n\t4 - Listar\n\t5 - Voltar ao Menu Principal")
                   str <- getLine
                   opcao <- (readIO str)
                   menuIntermediarioProfessor opcao
@@ -173,16 +173,22 @@ removerProfessor = catchIOError (do
 --funcao para alterar um professor cadastrado
 alterarProfessor :: IO()
 alterarProfessor = do
-                        putStrLn "Digite o nome do professor"
-                        nome <- getLine
                         putStrLn "Digite o CPF do professor"
                         cpf <- getLine
+                        putStrLn "Altere o nome do professor(se não quiser digite o nome antigo)"
+                        nome <- getLine
+                        putStrLn "Altere o salario do professor(se não quiser digite o salario antigo)"
+                        str <- getLine
+                        salario <- (readIO str) 
+                        putStrLn "Altere as disciplinas que ele leciona separadas por virgula(se não quiser digite as disciplinas antigas)"
+                        disciplinas <- getLine
+                        let lista = formarArray disciplinas
                         array <- lerProfessores
                         let usuario = buscar (formarProfessor' "a" cpf) array
-                        let x = ((\(Professor _ info1 info2 info3 info4) info -> (Professor info info1 info2 info3 info4)) usuario nome)
+                        let x = ((\(Professor _ info1 _ info3 _ ) info info2 info4 -> (Professor info info1 info2 info3 info4)) usuario nome salario lista)
                         let listavelha = (remover (formarProfessor' "a" cpf) array) 
                         let listanova = (inserir x listavelha)
-                        salvarAlunos listanova 
+                        salvarProfessores listanova 
                         putStrLn "Operação realizada com sucesso. Digite algo para prosseguir."
                         getLine
                         menuProfessor
@@ -216,7 +222,7 @@ formatListaDeProfessor a = formarListaDeProfessor (redoLista a [] )
 -- menu do aluno
 menuAluno:: IO ()
 menuAluno = do
-                  putStrLn ("\n\t---MENU ALUNO---\n\n\t1 - Adicionar\n\t2 - Remover\n\t3 - Alterar\n\t4 - Buscar\n\t5 - Voltar ao Menu Principal")
+                  putStrLn ("\n\t---MENU ALUNO---\n\n\t1 - Adicionar\n\t2 - Remover\n\t3 - Listar\n\t4 - Buscar\n\t5 - Voltar ao Menu Principal")
                   str <- getLine
                   opcao <- (readIO str)
                   menuIntermediarioAluno opcao
@@ -275,18 +281,16 @@ removerAluno = catchIOError (do
 --funcao para alterar um aluno cadastrado
 alterarAluno :: IO()
 alterarAluno = do
-                        putStrLn "Digite o nome do aluno"
-                        nome <- getLine
-                        putStrLn "Digite o CPF do aluno"
+                        putStrLn "Digite o CPF do Aluno"
                         cpf <- getLine
-                        putStrLn "Digite a data de ingresso do aluno"
-                        date <- getLine
-                        putStrLn "Digite as disciplinas que ele cursa separadas por virgula"
+                        putStrLn "Altere o nome do Aluno(se não quiser digite o nome antigo)"
+                        nome <- getLine
+                        putStrLn "Altere as disciplinas que ele leciona separadas por virgula(se não quiser digite as disciplinas antigas)"
                         disciplinas <- getLine
                         let lista = formarArray disciplinas
                         array <- lerAlunos
                         let usuario = buscar (formarAluno' "a" cpf) array
-                        let x = ((\(Aluno _ info1 info2 info3) info -> (Aluno info info1 info2 info3)) usuario nome)
+                        let x = ((\(Aluno _ info1 _ info3 _ ) info info2 info4 -> (Aluno info info1 info2 info3 info4)) usuario nome lista)
                         let listavelha = (remover (formarAluno' "a" cpf) array) 
                         let listanova = (inserir x listavelha)
                         salvarAlunos listanova 
