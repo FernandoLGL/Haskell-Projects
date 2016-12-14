@@ -1,0 +1,1 @@
+[Aluno "mulher" "7" "6/6/6" ["sinais","sistemas"],Aluno "caiossexual" "8" "7/7/7" ["lpi","lpoo","lpf"],Aluno "frangofran" "9" "8/8/8" ["lpi","lpoo","lpf"]]

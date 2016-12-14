@@ -177,7 +177,7 @@ menuAlterarProfessor = do
                   cpf <- getLine
                   array <- lerProfessores
                   let usuario = buscar (formarProfessor' "a" cpf) array
-                  putStrLn ("\t CPF 'cpf' \t1 - Alterar Nome\n\t2 - Alterar salario\n\t3 - Alterar disciplinas\n\t4 - Voltar ao Menu Professor")
+                  putStrLn ("\t1 - Alterar Nome\n\t2 - Alterar salario\n\t3 - Alterar disciplinas\n\t4 - Voltar ao Menu Professor")
                   str <- getLine
                   opcao <- (readIO str)
                   menuExtraAlterarProfessor opcao cpf
@@ -265,7 +265,7 @@ formatListaDeProfessor a = formarListaDeProfessor (redoLista a [] )
 -- menu do aluno
 menuAluno:: IO ()
 menuAluno = do
-                  putStrLn ("\n\t---MENU ALUNO---\n\n\t1 - Adicionar\n\t2 - Remover\n\t3 - Listar\n\t4 - Buscar\n\t5 - Voltar ao Menu Principal")
+                  putStrLn ("\n\t---MENU ALUNO---\n\n\t1 - Adicionar\n\t2 - Remover\n\t3 - Alterar\n\t4 - Listar\n\t5 - Voltar ao Menu Principal")
                   str <- getLine
                   opcao <- (readIO str)
                   menuIntermediarioAluno opcao
