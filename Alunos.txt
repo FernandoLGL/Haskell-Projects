@@ -1,1 +1,0 @@
-[Aluno "danilos" "8" "7" ["sinais","sistemas"],Aluno "ferdinando" "9" "8" ["circuitos","nada"]]
