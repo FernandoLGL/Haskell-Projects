@@ -1,7 +1,7 @@
 --Alunos: Daniel Vasconcellos, Fernando Rosendo, Eduardo Albuquerque
 
 import Prelude hiding (catch)
---import Data.Time
+import Data.Time
 import System.IO
 import System.IO.Error
 import Control.Exception
