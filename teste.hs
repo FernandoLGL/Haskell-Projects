@@ -89,7 +89,7 @@ salvarProfessores aux = writeFile "Professores.txt" (show aux)
 --Função de leitura de um cliente com base em um arquivo chamado "Cardapio.bin", essa função tem a possibilidade de lançar 4 exceções as mesmas são checadas e tratadaa
 lerProfessores :: IO ([Professor])
 lerProfessores = catchIOError (do
-                  str <- readFile "Alunos.txt"
+                  str <- readFile "Professores.txt"
                   retorno <- (readIO str)
                   return retorno
                   )

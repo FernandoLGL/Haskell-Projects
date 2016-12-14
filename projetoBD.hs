@@ -55,7 +55,7 @@ lerAlunos = catchIOError (do
 --funcao para ler o arquivo de professores
 lerProfessores :: IO ([Professor])
 lerProfessores = catchIOError (do
-                  str <- readFile "Alunos.txt"
+                  str <- readFile "Professores.txt"
                   retorno <- (readIO str)
                   return retorno
                   )
@@ -136,6 +136,26 @@ adicionarProfessor = do
                         putStrLn "Operacao realizada com sucesso. Digite algo para prosseguir."
                         getLine
                         menuProfessor
+
+--funçao para remover professor
+removerProfessor :: IO()
+removerProfessor = catchIOError (do
+                        putStrLn "Digite o cpf de quem deseja excluir"
+                        cpf <- getLine     
+                        array <- lerProfessores
+                        let newList =  remover (formarProfessor "a" cpf 0 "a" []) array 
+                        salvarProfessores newList 
+                        putStrLn "Operação realizada com sucessso, digite algo para continuar"
+                        getLine
+                        menuProfessor
+                        )
+                            (
+                              funcAux 
+                            )
+  where
+    funcAux :: IOError -> IO()
+    funcAux  e |(isUserError e) = putStrLn "Erro Cliente não encontrado" >> menuProfessor
+               |True = ioError e                          
 
 
 -- menu do aluno
