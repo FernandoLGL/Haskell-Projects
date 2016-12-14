@@ -27,6 +27,12 @@ instance Eq Aluno where
 inserir :: a->[a]->[a]
 inserir a l = a:l
 
+--Função de inserção: A função ordenada de inserção apenas insere um elemento generico em uma lista generica preucupando-se com ordem mas não com a repetição.
+inserirOrd ::(Ord a) => a->[a]->[a]
+inserirOrd a [] = a:[]
+inserirOrd a (h:t) |(a<h) = a:(h:t)
+                   |True = h: inserirOrd a t
+
 --Função de remoção: A função de remorção apenas remove todos elementos genericos em uma lista, que são iguais ao programa.
 remover ::(Eq a) => a -> [a] -> [a]
 remover _ [] = []
@@ -51,15 +57,15 @@ formarProfessor nome cpf salario date disciplinas = Professor nome cpf salario d
 
 --Função que informa os clientes, em ordem crescente e retorna uma lista no formato  [Cliente (Nome,Cpf) : 10.00, Cliente (Nome,Cpf) : 20.00, Cliente (Nome,Cpf) : 30.00...]: 
 --Para isso ela recebe uma lista de clientes, ordena ela(em uma função auxiliar), e por fim usando essa lista ordenada faz uma lista com os clientes com relação as informações requisitadas nesse padrão
---formatListaDeClientes::[Cliente]-> [String]
---formatListaDeClientes a = formarListaDeClientes (redoLista a [] )
---   where  
---         redoLista:: [Cliente] -> [Cliente] -> [Cliente]
---         redoLista [] a = a
---         redoLista (h:t) a = redoLista t (inserirOrd h a)
---         formarListaDeClientes:: [Cliente] -> [String]
---         formarListaDeClientes [] = []
---         formarListaDeClientes (((Cliente nome cpf lucro pedidos)):t) = ("Cliente " ++ nome ++" , " ++  cpf ++ " : " ++  show lucro ): formatListaDeClientes t
+--formatListaDeProfessores::[Professor]-> [String]
+--formatListaDeProfessores a = formarListaDeProfessores (redoLista a [] )
+  -- where  
+    --     redoLista:: [Professor] -> [Professor] -> [Professor]
+      --   redoLista [] a = a
+        -- redoLista (h:t) a = redoLista t (inserirOrd h a)
+         --formarListaDeProfessores:: [Professor] -> [String]
+         --formarListaDeProfessores [] = []
+         --formarListaDeProfessores (((Professor nome cpf salario date disciplinas)):t) = ("Cliente " ++ nome ++" , " ++  cpf ++ " : " ++  show salario ): formatListaDeProfessores t
 
 
 --Funções de leitura e aramazenamento de arquivos
@@ -130,9 +136,9 @@ menuProfessor = do
 --Menu intermediario que usa do parametro passado para levar o usuario a sua operação requisita 
 menuIntermediarioProfessor:: Int -> IO()
 menuIntermediarioProfessor 1 = adicionarProfessor
-menuIntermediarioProfessor 2 = removerProfessor
+--menuIntermediarioProfessor 2 = removerProfessor
 --menuIntermediarioProfessor 3 = alterarProfessor
---menuIntermediarioProfessor 4 = buscarProfessor
+menuIntermediarioProfessor 4 = listarProfessores
 menuIntermediarioProfessor 5 = menuPrincipal
 menuIntermediarioProfessor _ = do
                         putStr "opcao invalida"
@@ -168,27 +174,49 @@ formarArrayAux (h:t) a = if (h==',') then
 
 formarArray s = formarArrayAux s []
 
+listarProfessores :: IO()
+listarProfessores = do  
+                      array <- lerProfessores
+                      imprimir (formatListaDeProfessor array)
+                      putStrLn "Digite algo para continuar"
+                      getLine
+                      menuProfessor
+
+    where
+       imprimir:: [String] -> IO()
+       imprimir [] = return()
+       imprimir (h:t) = putStrLn h >> imprimir t
+
+formatListaDeProfessor::[Professor]-> [String]
+formatListaDeProfessor a = formarListaDeProfessor (redoLista a [] )
+   where  
+         redoLista:: [Professor] -> [Professor] -> [Professor]
+         redoLista [] a = a
+         redoLista (h:t) a = redoLista t (inserir h a)
+         formarListaDeProfessor:: [Professor] -> [String]
+         formarListaDeProfessor [] = []
+         formarListaDeProfessor (((Professor nome cpf salario date disciplina)):t) = ("PROFESSOR: " ++ nome ++" CPF: " ++  cpf ++ " SALARIO: " ++ show salario ++ " DATA DE INGRESSO: " ++ date ++ " DISCIPLINAS: " ++ show disciplina ): formatListaDeProfessor t       
   
 
 ----Operação de remoção de Cliente interativa que pega o  cpf do cliente e usando funções implementadas nesse codigo forma o cliente e remove ao arquivo mesmo, há probilidade de erro portato os mesmos são tratados 
-removerProfessor :: IO()
-removerProfessor = catchIOError (do
-                        putStrLn "Digite o cpf de quem deseja excluir"
-                        cpf <- getLine     
-                        array <- lerProfessores
-                        let newList =  remover (formarProfessor "a" cpf 0 "a" []) array 
-                        salvarProfessores newList 
-                        putStrLn "Operação realizada com sucessso, digite algo para continuar"
-                        getLine
-                        menuProfessor
-                        )
-                            (
-                              funcAux 
-                            )
-  where
-    funcAux :: IOError -> IO()
-    funcAux  e |(isUserError e) = putStrLn "Erro Cliente não encontrado" >> menuProfessor
-               |True = ioError e   
+--removerProfessor :: IO()
+--removerProfessor = catchIOError (do
+  --                      putStrLn "Digite o cpf de quem deseja excluir"
+    --                    cpf <- getLine     
+      --                  array <- lerProfessores
+        --                let newList =  remover (formarProfessor "a" cpf 0 "a" []) array 
+          --              salvarProfessores newList 
+            --            putStrLn "Operação realizada com sucessso, digite algo para continuar"
+              --          getLine
+                --        menuProfessor
+                  --      )
+                    --        (
+                      --        funcAux 
+                        --    )
+  --where
+    --funcAux :: IOError -> IO()
+    --funcAux  e |(isUserError e) = putStrLn "Erro Cliente não encontrado" >> menuProfessor
+      --         |True = ioError e   
 
 ----Operação de alteração de Cliente interativa que pega o novo nome e cpf do cliente e usando funções implementadas nesse codigo forma o cliente e remove e adiciona ao arquivo mesmo, há probilidade de erro portato os mesmos são tratados.
 --menuAlterarCliente :: IO()
@@ -214,21 +242,6 @@ removerProfessor = catchIOError (do
 --    funcAux :: IOError -> IO()
 --    funcAux  e |(isUserError e) = putStrLn "Erro Cliente não encontrado" >> menuCliente
 --               |True = ioError e   
-
-----Operação de listagem de Cliente interativa que imprime o cliente com base no arquivo na database
---menuListarCliente ::  IO()
---menuListarCliente = do
---                      array <- lerCliente
---                      putStrLn "Cliente (nome) (lucro)"
---                      imprimir (formatListaDeClientes array)
---                      putStrLn "Digite algo para continuar"
---                      getLine
---                      menuCliente
---  where
---       imprimir:: [String] -> IO()
---       imprimir [] = return()
---       imprimir (h:t) = putStrLn h >> imprimir t
-
 
 ----Menu referente ao Cardapio que leva o usuario a operação requisita
 --menuCardapio :: IO()

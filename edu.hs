@@ -17,7 +17,8 @@ data Aluno = Aluno String String String [Disciplina]  deriving (Show,Read)
 instance Eq Aluno where
     (==) (Aluno _ cpf _ _) (Aluno _ cpf2 _ _) = cpf == cpf2
 
---funcao para insercao
+--Função de inserção: A função de inserção apenas insere um elemento generico em uma lista generica sem se importar com ordem ou com repetição.
+inserir :: a->[a]->[a]
 inserir a l = a:l
 
 --funcao para remocao
@@ -87,16 +88,16 @@ menuPrincipal = do
                   opcao <- (readIO str)
                   menuIntermediario opcao
 
---menu intermediario
+--Menu intermediario que usa do parametro passado para levar o usuario a seu respectivo menu
 menuIntermediario:: Int -> IO()
 menuIntermediario 1 = menuProfessor
-menuIntermediario 2 = menuAluno
+--menuIntermediario 2 = menuAluno
 menuIntermediario 3 = return ()
 menuIntermediario _ = do
                         putStrLn "erro Tente de novo"
                         menuPrincipal
 
--- menu do professor
+--Menu referente ao Professor que leva o usuario a operação requisita
 menuProfessor:: IO ()
 menuProfessor = do
                   putStrLn ("\t1 - Adicionar\n\t2 - Remover\n\t3 - Alterar\n\t4 - Buscar\n\t5 - Voltar ao Menu Principal")
@@ -104,12 +105,12 @@ menuProfessor = do
                   opcao <- (readIO str)
                   menuIntermediarioProfessor opcao
 
---menu intermediario do professor
-menuIntermediarioProfessor:: IO()
+--Menu intermediario que usa do parametro passado para levar o usuario a sua operação requisita 
+menuIntermediarioProfessor:: Int -> IO()
 menuIntermediarioProfessor 1 = adicionarProfessor
-menuIntermediarioProfessor 2 = removerProfessor
-menuIntermediarioProfessor 3 = alterarProfessor
-menuIntermediarioProfessor 4 = buscarProfessor
+--menuIntermediarioProfessor 2 = removerProfessor
+--menuIntermediarioProfessor 3 = alterarProfessor
+menuIntermediarioProfessor 4 = listarProfessores
 menuIntermediarioProfessor 5 = menuPrincipal
 menuIntermediarioProfessor _ = do
                         putStr "opcao invalida"
@@ -136,6 +137,31 @@ adicionarProfessor = do
                         putStrLn "Operacao realizada com sucesso. Digite algo para prosseguir."
                         getLine
                         menuProfessor
+
+--Funçao para listar todos os professores cadastrados no banco de dados
+listarProfessores :: IO()
+listarProfessores = do  
+                      array <- lerProfessores
+                      imprimir (formatListaDeProfessor array)
+                      putStrLn "Digite algo para continuar"
+                      getLine
+                      menuProfessor
+
+    where
+       imprimir:: [String] -> IO()
+       imprimir [] = return()
+       imprimir (h:t) = putStrLn h >> imprimir t
+
+formatListaDeProfessor::[Professor]-> [String]
+formatListaDeProfessor a = formarListaDeProfessor (redoLista a [] )
+   where  
+         redoLista:: [Professor] -> [Professor] -> [Professor]
+         redoLista [] a = a
+         redoLista (h:t) a = redoLista t (inserir h a)
+         formarListaDeProfessor:: [Professor] -> [String]
+         formarListaDeProfessor [] = []
+         formarListaDeProfessor (((Professor nome cpf salario date disciplina)):t) = ("PROFESSOR: " ++ nome ++" CPF: " ++  cpf ++ " SALARIO: " ++ show salario ++ " DATA DE INGRESSO: " ++ date ++ " DISCIPLINAS: " ++ show disciplina ): formatListaDeProfessor t       
+
 
 --funçao para remover professor
 removerProfessor :: IO()
