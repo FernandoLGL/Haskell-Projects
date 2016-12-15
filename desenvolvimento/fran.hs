@@ -29,45 +29,45 @@ remover a (h:t) |(h == a) = remover a t
 --funcao para busca
 --busca um elemento generico em uma lista que é igual ao elemento passado como parametro.
 buscar :: (Eq a) => a -> [a] -> a
-buscar _ [] = error "Elemento não encontrado"
+buscar _ [] = error "Elemento não foi encontrado"
 buscar a (h:t) |(h == a) = h
                |True = buscar a t
 
 --salvar alunos num arquivo de texto
-salvarAlunos :: Show a => a -> IO ()
-salvarAlunos aux = writeFile "Alunos.txt" (show aux)
+saveAlunos :: Show a => a -> IO ()
+saveAlunos aux = writeFile "Alunos.txt" (show aux)
 
 --salvar professores num arquivo de texto
-salvarProfessores :: Show a => a -> IO ()
-salvarProfessores aux = writeFile "Professores.txt" (show aux)
+saveProfessores :: Show a => a -> IO ()
+saveProfessores aux = writeFile "Professores.txt" (show aux)
 
 --funcao para ler o arquivo de alunos
-lerAlunos :: IO ([Aluno])
-lerAlunos = catchIOError (do
+readAlunos :: IO ([Aluno])
+readAlunos = catchIOError (do
                   str <- readFile "Alunos.txt"
                   retorno <- (readIO str)
                   return retorno
                   )
-                  (funcAux)
-  where funcAux:: IOError -> IO ([Aluno])
-        funcAux e |(isDoesNotExistError e) = return []
-                  |(isPermissionError e) = putStrLn "Por favor verifique as permicoes antes de continuar." >> return []
-                  |(isAlreadyInUseError e) = putStrLn "Feche a aplicação e tente outra vez" >> getLine >>lerAlunos
+                  (funcaoAux)
+  where funcaoAux:: IOError -> IO ([Aluno])
+        funcaoAux e |(isDoesNotExistError e) = return []
+                  |(isPermissionError e) = putStrLn "Acess Denied" >> return []
+                  |(isAlreadyInUseError e) = putStrLn "Try Again" >> getLine >>readAlunos
                   |(isUserError e) = return []
                   |True = ioError e
 
 --funcao para ler o arquivo de professores
-lerProfessores :: IO ([Professor])
-lerProfessores = catchIOError (do
+readProfessores :: IO ([Professor])
+readProfessores = catchIOError (do
                   str <- readFile "Professores.txt"
                   retorno <- (readIO str)
                   return retorno
                   )
-                  (funcAux)
-  where funcAux:: IOError -> IO ([Professor])
-        funcAux e |(isDoesNotExistError e) = return []
-                  |(isPermissionError e) = putStrLn "Por favor verifique as permicoes antes de continuar." >> return []
-                  |(isAlreadyInUseError e) = putStrLn "Feche a aplicação e tente outra vez" >> getLine >>lerProfessores
+                  (funcaoAux)
+  where funcaoAux:: IOError -> IO ([Professor])
+        funcaoAux e |(isDoesNotExistError e) = return []
+                  |(isPermissionError e) = putStrLn "Acess Denied" >> return []
+                  |(isAlreadyInUseError e) = putStrLn "Try Again" >> getLine >>readProfessores
                   |(isUserError e) = return []
                   |True = ioError e
 
@@ -151,9 +151,9 @@ adicionarProfessor = do
                         putStrLn "Digite as disciplinas que ele leciona separadas por virgula"
                         disciplinas <- getLine
                         let lista = formarArray disciplinas
-                        jaExistentes <- lerProfessores
-                        let profSalvar = inserir (formarProfessor nome cpf salario date lista) jaExistentes
-                        salvarProfessores profSalvar
+                        jaExistentes <- readProfessores
+                        let profsave = inserir (formarProfessor nome cpf salario date lista) jaExistentes
+                        saveProfessores profsave
                         putStrLn "Operacao realizada com sucesso. Digite algo para prosseguir."
                         getLine
                         menuProfessor
@@ -163,19 +163,19 @@ removerProfessor :: IO()
 removerProfessor = catchIOError (do
                         putStrLn "Digite o cpf de quem deseja excluir"
                         cpf <- getLine     
-                        array <- lerProfessores
+                        array <- readProfessores
                         let newList =  remover (formarProfessor "a" cpf 0 "a" []) array 
-                        salvarProfessores newList 
+                        saveProfessores newList 
                         putStrLn "Operacao realizada com sucessso. Digite algo para prosseguir."
                         getLine
                         menuProfessor
                         )
                             (
-                              funcAux 
+                              funcaoAux 
                             )
   where
-    funcAux :: IOError -> IO()
-    funcAux  e |(isUserError e) = putStrLn "Erro Cliente não encontrado" >> menuProfessor
+    funcaoAux :: IOError -> IO()
+    funcaoAux  e |(isUserError e) = putStrLn "Erro Cliente não encontrado" >> menuProfessor
                |True = ioError e                          
 
 --funcao para alterar um professor cadastrado
@@ -183,7 +183,7 @@ menuAlterarProfessor:: IO ()
 menuAlterarProfessor = do
                   putStrLn "Digite o CPF do professor"
                   cpf <- getLine
-                  array <- lerProfessores
+                  array <- readProfessores
                   let usuario = buscar (formarProfessor' "a" cpf) array
                   putStrLn ("\t1 - Alterar Nome\n\t2 - Alterar salario\n\t3 - Alterar disciplinas\n\t4 - Voltar ao Menu Professor")
                   str <- getLine
@@ -204,12 +204,12 @@ alterarNomeProf:: String -> IO()
 alterarNomeProf cpf = do
                         putStrLn "Altere o nome do professor"
                         nome <- getLine
-                        array <- lerProfessores
+                        array <- readProfessores
                         let usuario = buscar (formarProfessor' "a" cpf) array
                         let x = ((\(Professor _ info1 info2 info3 info4) info  -> (Professor info info1 info2 info3 info4)) usuario nome)
                         let listavelha = (remover (formarProfessor' "a" cpf) array) 
                         let listanova = (inserir x listavelha)
-                        salvarProfessores listanova 
+                        saveProfessores listanova 
                         putStrLn "Operação realizada com sucesso. Digite algo para prosseguir."
                         getLine
                         menuProfessor
@@ -220,12 +220,12 @@ alterarSalarioProf cpf = do
                         putStrLn "Altere o salario do professor"
                         str <- getLine
                         salario <- (readIO str)
-                        array <- lerProfessores
+                        array <- readProfessores
                         let usuario = buscar (formarProfessor' "a" cpf) array
                         let x = ((\(Professor info info1 _ info3 info4) info2  -> (Professor info info1 info2 info3 info4)) usuario salario)
                         let listavelha = (remover (formarProfessor' "a" cpf) array) 
                         let listanova = (inserir x listavelha)
-                        salvarProfessores listanova 
+                        saveProfessores listanova 
                         putStrLn "Operação realizada com sucesso. Digite algo para prosseguir."
                         getLine
                         menuProfessor
@@ -236,12 +236,12 @@ alterarDisciplinasProf cpf = do
                         putStrLn "Altere as disciplinas que ele leciona separadas por virgula"
                         disciplinas <- getLine
                         let lista = formarArray disciplinas
-                        array <- lerProfessores
+                        array <- readProfessores
                         let usuario = buscar (formarProfessor' "a" cpf) array
                         let x = ((\(Professor info info1 info2 info3 _ ) info4  -> (Professor info info1 info2 info3 info4)) usuario lista)
                         let listavelha = (remover (formarProfessor' "a" cpf) array) 
                         let listanova = (inserir x listavelha)
-                        salvarProfessores listanova 
+                        saveProfessores listanova 
                         putStrLn "Operação realizada com sucesso. Digite algo para prosseguir."
                         getLine
                         menuProfessor
@@ -249,16 +249,16 @@ alterarDisciplinasProf cpf = do
 --Funcao para listar todos os professores cadastrados no banco de dados
 listarProfessores :: IO()
 listarProfessores = do  
-                      array <- lerProfessores
-                      imprimir (formatListaDeProfessor array)
+                      array <- readProfessores
+                      print (formatListaDeProfessor array)
                       putStrLn "Digite algo para continuar"
                       getLine
                       menuProfessor
 
     where
-       imprimir:: [String] -> IO()
-       imprimir [] = return()
-       imprimir (h:t) = putStrLn h >> imprimir t
+       print:: [String] -> IO()
+       print [] = return()
+       print (h:t) = putStrLn h >> print t
 
 formatListaDeProfessor::[Professor]-> [String]
 formatListaDeProfessor a = formarListaDeProfessor (redoLista a [] )
@@ -303,9 +303,9 @@ adicionarAluno = do
                         putStrLn "Digite as disciplinas que ele cursa separadas por virgula"
                         disciplinas <- getLine
                         let lista = formarArray disciplinas
-                        jaExistentes <- lerAlunos
-                        let alunoSalvar = inserir (formarAluno nome cpf date lista) jaExistentes
-                        salvarAlunos alunoSalvar
+                        jaExistentes <- readAlunos
+                        let alunosave = inserir (formarAluno nome cpf date lista) jaExistentes
+                        saveAlunos alunosave
                         putStrLn "Operacao realizada com sucesso. Digite algo para prosseguir."
                         getLine
                         menuAluno
@@ -315,19 +315,19 @@ removerAluno :: IO()
 removerAluno = catchIOError (do
                         putStrLn "Digite o cpf de quem deseja excluir"
                         cpf <- getLine     
-                        array <- lerAlunos
+                        array <- readAlunos
                         let newList =  remover (formarAluno "a" cpf "a" []) array 
-                        salvarAlunos newList 
+                        saveAlunos newList 
                         putStrLn "Operacao realizada com sucessso. Digite algo para prosseguir."
                         getLine
                         menuAluno
                         )
                             (
-                              funcAux 
+                              funcaoAux 
                             )
   where
-    funcAux :: IOError -> IO()
-    funcAux  e |(isUserError e) = putStrLn "Erro Aluno não encontrado" >> menuAluno
+    funcaoAux :: IOError -> IO()
+    funcaoAux  e |(isUserError e) = putStrLn "Erro Aluno não encontrado" >> menuAluno
                |True = ioError e                             
 
 --menu de alteracao geral do aluno
@@ -335,7 +335,7 @@ menuAlterarAluno:: IO ()
 menuAlterarAluno = do
                   putStrLn "Digite o CPF do Aluno"
                   cpf <- getLine
-                  array <- lerAlunos
+                  array <- readAlunos
                   let usuario = buscar (formarAluno' "a" cpf) array
                   putStrLn ("\t1 - Alterar Nome\n\t2 - Alterar disciplinas\n\t3 - Voltar ao Menu Aluno")
                   str <- getLine
@@ -355,12 +355,12 @@ alterarNomeAluno:: String -> IO()
 alterarNomeAluno cpf = do
                         putStrLn "Altere o nome do Aluno"
                         nome <- getLine
-                        array <- lerAlunos
+                        array <- readAlunos
                         let usuario = buscar (formarAluno' "a" cpf) array
                         let x = ((\(Aluno _ info1 info2 info3 ) info  -> (Aluno info info1 info2 info3 )) usuario nome)
                         let listavelha = (remover (formarAluno' "a" cpf) array) 
                         let listanova = (inserir x listavelha)
-                        salvarAlunos listanova 
+                        saveAlunos listanova 
                         putStrLn "Operação realizada com sucesso. Digite algo para prosseguir."
                         getLine
                         menuAluno
@@ -371,12 +371,12 @@ alterarDisciplinasAluno cpf = do
                         putStrLn "Altere as disciplinas que ele esta cursando separadas por virgula"
                         disciplinas <- getLine
                         let lista = formarArray disciplinas
-                        array <- lerAlunos
+                        array <- readAlunos
                         let usuario = buscar (formarAluno' "a" cpf) array
                         let x = ((\(Aluno info info1 info2 _ ) info3  -> (Aluno info info1 info2 info3)) usuario lista)
                         let listavelha = (remover (formarAluno' "a" cpf) array) 
                         let listanova = (inserir x listavelha)
-                        salvarAlunos listanova 
+                        saveAlunos listanova 
                         putStrLn "Operação realizada com sucesso. Digite algo para prosseguir."
                         getLine
                         menuAluno
@@ -384,16 +384,16 @@ alterarDisciplinasAluno cpf = do
 --Funçao para listar todos os professores cadastrados no banco de dados
 listarAlunos :: IO()
 listarAlunos = do  
-                      array <- lerAlunos
-                      imprimir (formatListaDeAluno array)
+                      array <- readAlunos
+                      print (formatListaDeAluno array)
                       putStrLn "Digite algo para continuar"
                       getLine
                       menuAluno
 
     where
-       imprimir:: [String] -> IO()
-       imprimir [] = return()
-       imprimir (h:t) = putStrLn h >> imprimir t
+       print:: [String] -> IO()
+       print [] = return()
+       print (h:t) = putStrLn h >> print t
 
 formatListaDeAluno::[Aluno]-> [String]
 formatListaDeAluno a = formarListaDeAluno (redoLista a [] )
@@ -408,7 +408,7 @@ formatListaDeAluno a = formarListaDeAluno (redoLista a [] )
 --funcao que monta os creditos do programa
 credits :: IO()
 credits = do
-                        putStrLn "Desenvolvido por: Daniel Vasconcellos, Eduardo Müller e Fernando Rosendo"
+                        putStrLn "Desenvolvido por: Daniel Vasconcellos, Eduardo Mülread e Fernando Rosendo"
                         getLine
                         menuPrincipal
 --Função principal que apenas chama as outras. Importante para o momento de compilação (iniciar o codigo)
