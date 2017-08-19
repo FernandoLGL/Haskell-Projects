@@ -1,5 +1,3 @@
---Alunos: Daniel Vasconcellos, Fernando Rosendo, Eduardo Albuquerque
-
 import Prelude hiding (catch)
 import System.IO
 import System.IO.Error
